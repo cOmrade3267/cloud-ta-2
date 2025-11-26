@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SecureCloud</title>
+  <script src="{{ url_for('static', filename='js/encryption.js') }}" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top left, #764ba2 0%, #181818 55%);
+      min-height: 100vh;
+      color: #e5e7eb;
+      padding: 20px;
+    }
+
+    .app-shell {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .user-badge {
+      background: rgba(17,24,39,0.8);
+      border-radius: 999px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(148,163,184,0.6);
+      font-size: 13px;
+    }
+
+    .user-badge span {
+      opacity: 0.9;
+    }
+
+    .logout-btn {
+      margin-left: 10px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: none;
+      background: #ef4444;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.3fr) minmax(0, 1.4fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(15,23,42,0.96);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+      border: 1px solid rgba(148,163,184,0.4);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .subtext {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(55,65,81,0.7);
+    }
+
+    /* Upload area */
+
+    .upload-area {
+      border: 1.5px dashed rgba(148,163,184,0.7);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+      background: radial-gradient(circle at top left, rgba(76,81,191,0.24), rgba(15,23,42,0.95));
+    }
+
+    .upload-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .upload-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      width: 100%;
+      align-items: center;
+    }
+
+    .file-input-label {
+      padding: 10px 14px;
+      background: rgba(30,64,175,0.9);
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      color: white;
+    }
+
+    .file-input-label:hover {
+      background: rgba(59,130,246,0.95);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    #selectedFileName {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .upload-password {
+      flex: 1;
+      min-width: 160px;
+      position: relative;
+    }
+
+    .upload-password input {
+      width: 100%;
+      padding: 10px 12px;
+      padding-left: 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      font-size: 13px;
+    }
+
+    .upload-password input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 1px rgba(99,102,241,0.6);
+    }
+
+    .upload-password span {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    .primary-btn {
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(79,70,229,0.65);
+    }
+
+    .secondary-btn {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(31,41,55,0.9);
+    }
+
+    .danger-btn {
+      background: rgba(220,38,38,0.9);
+      border-color: transparent;
+      color: #fee2e2;
+    }
+
+    .danger-btn:hover {
+      background: rgba(248,113,113,0.95);
+    }
+
+    .folder-list, .file-list {
+      margin-top: 12px;
+    }
+
+    .folder-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .folder-pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(31,41,55,0.9);
+      border: 1px solid rgba(75,85,99,0.9);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .folder-pill span.icon {
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 8px 6px;
+      text-align: left;
+    }
+
+    thead tr {
+      border-bottom: 1px solid rgba(55,65,81,0.9);
+      color: #9ca3af;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(31,41,55,0.8);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .file-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .file-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: radial-gradient(circle at top left, #4f46e5, #db2777);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .share-input-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .share-input-row input {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(75,85,99,0.9);
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      font-size: 12px;
+    }
+
+    .badge-muted {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      color: white;
+      background: #22c55e;
+      display: none;
+      z-index: 1000;
+      font-size: 13px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+    }
+
+    .toast.error { background: #ef4444; }
+    .toast.warning { background: #f97316; }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .spinner {
+      width: 46px;
+      height: 46px;
+      border: 4px solid rgba(209,213,219,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .breadcrumbs {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-bottom: 10px;
+    }
+
+    .breadcrumbs a {
+      color: #a5b4fc;
+      text-decoration: none;
+    }
+
+    .breadcrumbs span {
+      margin: 0 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <div class="app-shell">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">🔐</div>
+        <div class="logo-text">SecureCloud</div>
+      </div>
+      <div class="user-badge">
+        <span>👤 {{ user_email }}</span>
+        <a href="{{ url_for('logout') }}">
+          <button class="logout-btn">Logout</button>
+        </a>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Left: Main file area -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Your Encrypted Files</div>
+            <div class="subtext">
+              End-to-end encrypted. Even the server only sees ciphertext.
+            </div>
+          </div>
+          <div class="tag">E2EE Active</div>
+        </div>
+
+        <div class="breadcrumbs">
+          <strong>Path:</strong>
+          {% if current_path %}
+            <a href="{{ url_for('storage') }}">root</a>
+            <span>/</span>
+            {{ current_path }}
+          {% else %}
+            root
+          {% endif %}
+        </div>
+
+        <!-- Upload -->
+        <form id="uploadForm">
+          <div class="upload-area">
+            <div class="upload-title">Upload &amp; Encrypt New File</div>
+            <div class="upload-row">
+              <label class="file-input-label" for="fileInput">
+                📁 Choose file
+              </label>
+              <span id="selectedFileName" class="badge-muted">No file selected</span>
+
+              <div class="upload-password">
+                <span>🔑</span>
+                <input
+                  type="password"
+                  id="encPassword"
+                  placeholder="Encryption password (stored in this session only)"
+                >
+              </div>
+
+              <button type="submit" class="primary-btn">
+                ⬆ Encrypt & Upload
+              </button>
+            </div>
+            <input type="hidden" id="currentPath" name="current_path" value="{{ current_path }}">
+            <input type="file" id="fileInput" name="file" />
+          </div>
+        </form>
+
+        <!-- Folders -->
+        <div class="folder-list">
+          <div class="card-header" style="margin-top: 16px; margin-bottom: 4px;">
+            <div class="card-title">Folders</div>
+          </div>
+
+          <form id="folderForm" style="margin-bottom: 10px;">
+            <div class="upload-row" style="gap: 8px;">
+              <input
+                type="text"
+                name="folder_name"
+                placeholder="New folder name"
+                style="flex:1; min-width:150px; padding:8px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.7); background:rgba(15,23,42,0.9); color:#e5e7eb; font-size:12px;"
+                required
+              >
+              <input type="hidden" name="current_path" value="{{ current_path }}">
+              <button type="submit" class="secondary-btn">
+                ➕ Create Folder
+              </button>
+            </div>
+          </form>
+
+          {% if folders %}
+            <div class="folder-grid">
+              {% for folder in folders %}
+                <a href="{{ url_for('storage', path=(current_path ~ '/' if current_path else '') ~ folder) }}">
+                  <div class="folder-pill">
+                    <span class="icon">📁</span>
+                    <span>{{ folder }}</span>
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="badge-muted">No folders yet.</div>
+          {% endif %}
+        </div>
+
+        <!-- Files -->
+        <div class="file-list" style="margin-top: 18px;">
+          <div class="card-header" style="margin-bottom: 4px;">
+            <div class="card-title">Files (encrypted)</div>
+            <div class="subtext">Decrypt on device only. Password never sent to server.</div>
+          </div>
+
+          {% if files %}
+            <table>
+              <thead>
+                <tr>
+                  <th>File</th>
+                  <th>Size</th>
+                  <th>Actions</th>
+                  <th>Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for f in files %}
+                  <tr>
+                    <td>
+                      <div class="file-name-cell">
+                        <div class="file-icon">{{ f.display_name[:3].upper() }}</div>
+                        <div>{{ f.display_name }}</div>
+                      </div>
+                    </td>
+                    <td>{{ f.size }}</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="secondary-btn decrypt-download-btn"
+                        data-filename="{{ f.real_name }}"
+                      >
+                        🔓 Decrypt & Download
+                      </button>
+                      <button
+                        type="button"
+                        class="secondary-btn danger-btn delete-file-btn"
+                        data-filename="{{ f.real_name }}"
+                        style="margin-left:4px;"
+                      >
+                        🗑 Delete
+                      </button>
+                    </td>
+                    <td>
+                      <div class="share-input-row">
+                        <input
+                          type="text"
+                          readonly
+                          value="{{ request.host_url }}shared/{{ safe_email }}/{{ f.real_name }}"
+                        >
+                        <button
+                          type="button"
+                          class="secondary-btn copy-share-btn"
+                          data-share-url="{{ request.host_url }}shared/{{ safe_email }}/{{ f.real_name }}"
+                        >
+                          🔗 Copy
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <div class="badge-muted" style="margin-top: 8px;">
+              No files uploaded yet. Try encrypting and uploading one above.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right: Info card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Security Overview</div>
+          <span class="tag">Zero-Knowledge</span>
+        </div>
+        <p class="subtext" style="margin-bottom:15px;">
+          Files are encrypted in your browser using AES-GCM. The server only stores ciphertext;
+          the password never leaves your device.
+        </p>
+
+        <ul style="font-size:13px; line-height:1.7; padding-left:18px;">
+          <li>🔐 <strong>E2EE:</strong> Encryption done before upload, decryption after download.</li>
+          <li>🧠 <strong>Session password memory:</strong> Password is cached in browser memory for this tab only.</li>
+          <li>🔗 <strong>Share via URL:</strong> Anyone with the link + password can decrypt.</li>
+          <li>🗑 <strong>Secure delete:</strong> Remove files instantly from cloud storage.</li>
+        </ul>
+
+        <div style="margin-top:20px; font-size:12px; opacity:0.8;">
+          Tip: Use a strong passphrase and share it out-of-band (e.g., in person or via a different app).
+          This keeps your sharing truly secure.
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

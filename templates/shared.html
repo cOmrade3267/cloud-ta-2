@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shared File - SecureCloud</title>
+  <script src="{{ url_for('static', filename='js/encryption.js') }}" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+      max-width: 500px;
+      width: 100%;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    .header-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 40px 30px;
+    }
+
+    .file-info {
+      background: #f7f9fc;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    .file-info-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .file-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .file-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .security-notice {
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .security-notice-title {
+      font-weight: 600;
+      color: #2e7d32;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .security-notice-text {
+      font-size: 14px;
+      color: #558b2f;
+      line-height: 1.5;
+    }
+
+    .decrypt-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .decrypt-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .decrypt-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .footer {
+      padding: 24px 30px;
+      background: #f7f9fc;
+      text-align: center;
+    }
+
+    .footer-text {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .footer-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 10px 20px;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .footer-link:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      padding: 16px 24px;
+      background: #333;
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: none;
+      animation: slideIn 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.success {
+      background: #00b894;
+    }
+
+    .toast.error {
+      background: #ff6b6b;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="container">
+    <div class="header">
+      <div class="header-icon">🔐</div>
+      <h1>Shared Encrypted File</h1>
+      <p>Someone shared a secure file with you</p>
+    </div>
+
+    <div class="content">
+      <div class="file-info">
+        <div class="file-info-label">File Name</div>
+        <div class="file-name">
+          <div class="file-icon">{{ filename[:3].upper() }}</div>
+          <span>{{ filename }}</span>
+        </div>
+      </div>
+
+      <div class="security-notice">
+        <div class="security-notice-title">
+          🛡️ End-to-End Encrypted
+        </div>
+        <div class="security-notice-text">
+          This file is protected with zero-knowledge encryption. Only someone with the correct password can decrypt and view it. Not even the server can access the contents.
+        </div>
+      </div>
+
+      <button
+        id="shared-decrypt-btn"
+        class="decrypt-btn"
+        data-owner-safe="{{ owner_safe }}"
+        data-filename="{{ filename }}"
+      >
+        🔓 Enter Password & Decrypt
+      </button>
+    </div>
+
+    <div class="footer">
+      <div class="footer-text">Want your own secure cloud storage?</div>
+      <a href="/signup" class="footer-link">Create Free Account</a>
+    </div>
+  </div>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    function showLoading() {
+      document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
